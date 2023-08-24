@@ -1,23 +1,17 @@
-import argparse
-import logging
-import os
 import re
-from prettytable import PrettyTable
-from configs import BASE_DIR, CONTACTS_PER_PAGE
-from faker import Faker
-from faker.providers import phone_number
-from dataclasses import dataclass, asdict
+
 import constants
+from configs import CONTACTS_PER_PAGE
 from phonebook import PhoneBook
 
 
-def print_menu():
+def print_menu() -> None:
     print("Меню:")
     for option, description in constants.MENU_OPTIONS.items():
         print(f"{option}. {description}")
 
 
-def input_integer(prompt):
+def input_integer(prompt: str) -> int:
     while True:
         try:
             value = int(input(prompt))
@@ -26,7 +20,7 @@ def input_integer(prompt):
             print("Пожалуйста, введите целое число.")
 
 
-def input_field(field_name):
+def input_field(field_name: str) -> str:
     while True:
         value = input(f"{field_name}: ")
         if re.match(r'^[\w\s-]+$', value):
@@ -35,7 +29,7 @@ def input_field(field_name):
             print("Пожалуйста, введите корректное значение.")
 
 
-def input_phone(field_name):
+def input_phone(field_name: str) -> str:
     while True:
         value = input(f"{field_name}: ")
         if re.match(
@@ -46,7 +40,7 @@ def input_phone(field_name):
             print("Пожалуйста, введите корректное значение.")
 
 
-def add_new_contact(phone_book):
+def add_new_contact(phone_book: PhoneBook) -> None:
     print("Добавление новой записи в справочник:")
     last_name = input_field("Фамилия")
     first_name = input_field("Имя")
@@ -65,7 +59,7 @@ def add_new_contact(phone_book):
     print("Запись успешно добавлена.")
 
 
-def edit_contact(phone_book):
+def edit_contact(phone_book: PhoneBook) -> None:
     index = input_integer("Введите номер записи: ") - 1
     if 0 <= index < len(phone_book):
         contact = phone_book.contacts[index]
@@ -90,7 +84,7 @@ def edit_contact(phone_book):
         print("Номер записи некорректный.")
 
 
-def delete_contact(phone_book):
+def delete_contact(phone_book: PhoneBook) -> None:
     print("Удаление записи из справочника:")
     index = input_integer("Введите номер записи: ") - 1
     if 0 <= index < len(phone_book.contacts):
@@ -101,7 +95,7 @@ def delete_contact(phone_book):
     phone_book.save_data()
 
 
-def search_contacts(phone_book):
+def search_contacts(phone_book: PhoneBook) -> None:
     for index, field in enumerate(constants.FIELDS, start=1):
         print(f"{index}. {field}")
     field_index = input_integer(
@@ -123,7 +117,7 @@ def search_contacts(phone_book):
         print("Записей не найдено.")
 
 
-def menu(phone_book: PhoneBook):
+def menu(phone_book: PhoneBook) -> None:
     while True:
         print_menu()
         match input_integer("Выберите пункт меню: "):
