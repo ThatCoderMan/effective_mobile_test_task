@@ -1,23 +1,27 @@
-import argparse
-import logging
-import os
 import re
-from prettytable import PrettyTable
-from configs import BASE_DIR, CONTACTS_PER_PAGE
-from faker import Faker
-from faker.providers import phone_number
-from dataclasses import dataclass, asdict
+
 import constants
+from configs import CONTACTS_PER_PAGE
 from phonebook import PhoneBook
 
 
-def print_menu():
+def print_menu() -> None:
+    """
+    Выводит на печать меню с доступными опциями.
+    """
     print("Меню:")
     for option, description in constants.MENU_OPTIONS.items():
         print(f"{option}. {description}")
 
 
-def input_integer(prompt):
+def input_integer(prompt: str) -> int:
+    """
+    Запрашивает у пользователя ввод целого числа.
+
+    :param prompt: Промпт для печати в консоль.
+    :return: Введенное целое число.
+    """
+
     while True:
         try:
             value = int(input(prompt))
@@ -26,27 +30,44 @@ def input_integer(prompt):
             print("Пожалуйста, введите целое число.")
 
 
-def input_field(field_name):
+def input_field(field_name: str) -> str:
+    """
+    Запрашивает у пользователя ввод значения для указанного поля.
+
+    :param field_name: Название поля.
+    :return: Введенное значение поля.
+    """
+
     while True:
         value = input(f"{field_name}: ")
-        if re.match(r'^[\w\s-]+$', value):
+        if re.match(constants.FIELD_FORMAT, value):
             return value
-        else:
-            print("Пожалуйста, введите корректное значение.")
+        print("Пожалуйста, введите корректное значение.")
 
 
-def input_phone(field_name):
+def input_phone(field_name: str) -> str:
+    """
+    Запрашивает у пользователя ввод значения
+    для указанного поля номера телефона.
+
+    :param field_name: Название поля номера телефона.
+    :return: Введенное значение поля номера телефона.
+    """
     while True:
         value = input(f"{field_name}: ")
         if re.match(
-                r'^(\+7|8)?(\s|\()?(\d{3})(\s|\))?(\d{3})(\s|\-|\))?(\d{2})(\s|\-)?(\d{2})$',
+                constants.PHONE_FORMAT,
                 value):
             return value
-        else:
-            print("Пожалуйста, введите корректное значение.")
+        print("Пожалуйста, введите корректное значение.")
 
 
-def add_new_contact(phone_book):
+def add_new_contact(phone_book: PhoneBook) -> None:
+    """
+    Добавляет новую запись в телефонный справочник.
+
+    :param phone_book: Объект PhoneBook.
+    """
     print("Добавление новой записи в справочник:")
     last_name = input_field("Фамилия")
     first_name = input_field("Имя")
@@ -65,7 +86,12 @@ def add_new_contact(phone_book):
     print("Запись успешно добавлена.")
 
 
-def edit_contact(phone_book):
+def edit_contact(phone_book: PhoneBook) -> None:
+    """
+    Изменяет значение указанного поля у контакта.
+
+    :param phone_book: Объект PhoneBook.
+    """
     index = input_integer("Введите номер записи: ") - 1
     if 0 <= index < len(phone_book):
         contact = phone_book.contacts[index]
@@ -73,7 +99,8 @@ def edit_contact(phone_book):
             value = getattr(contact, field)
             print(f"{index}. {field}: {value}")
         field_index = input_integer(
-            "Введите индекс поля, которое хотите отредактировать:") - 1
+            "Введите индекс поля, которое хотите отредактировать:"
+        ) - 1
         if field_index in [0, 1, 2]:
             new_value = input_field("Введите новое значение поля")
         elif field_index == 3:
@@ -90,7 +117,12 @@ def edit_contact(phone_book):
         print("Номер записи некорректный.")
 
 
-def delete_contact(phone_book):
+def delete_contact(phone_book: PhoneBook) -> None:
+    """
+    Удаляет запись из телефонного справочника.
+
+    :param phone_book: Объект PhoneBook.
+    """
     print("Удаление записи из справочника:")
     index = input_integer("Введите номер записи: ") - 1
     if 0 <= index < len(phone_book.contacts):
@@ -101,7 +133,12 @@ def delete_contact(phone_book):
     phone_book.save_data()
 
 
-def search_contacts(phone_book):
+def search_contacts(phone_book: PhoneBook) -> None:
+    """
+    Выполняет поиск контактов по указанному полю и поисковому запросу.
+
+    :param phone_book: Объект PhoneBook.
+    """
     for index, field in enumerate(constants.FIELDS, start=1):
         print(f"{index}. {field}")
     field_index = input_integer(
@@ -123,7 +160,13 @@ def search_contacts(phone_book):
         print("Записей не найдено.")
 
 
-def menu(phone_book: PhoneBook):
+def menu(phone_book: PhoneBook) -> None:
+    """
+    Отображает главное меню приложения и обрабатывает
+    выбранные пользователем опции.
+
+    :param phone_book: Объект PhoneBook.
+    """
     while True:
         print_menu()
         match input_integer("Выберите пункт меню: "):

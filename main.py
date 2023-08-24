@@ -1,19 +1,8 @@
-import argparse
-import logging
-import os
-import re
-from prettytable import PrettyTable
-from configs import configure_logging, configure_argument_parser, BASE_DIR
-from faker import Faker
-from faker.providers import phone_number
-from dataclasses import dataclass, asdict
-import constants
+from configs import configure_argument_parser
 from interface import menu
 from phonebook import PhoneBook
 
-
 if __name__ == "__main__":
-    configure_logging()
     parser = configure_argument_parser()
     args = parser.parse_args()
 
